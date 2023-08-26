@@ -2,6 +2,7 @@
 using Susami_Anixe.Core.DataAccess;
 using Susami_Anixe.Core.Model.Entities;
 using Susami_Anixe.Core.Repositories.Interfaces;
+using System.Linq;
 
 namespace Susami_Anixe.Core.Repositories
 {   
@@ -20,6 +21,11 @@ namespace Susami_Anixe.Core.Repositories
                 _context.Bookings.Update(booking);
                 _context.SaveChanges();                
             //}                                  
+        }
+
+        public IQueryable<Booking> Get(int id)
+        {
+            return _context.Bookings.Where(s => s.Id == id).AsQueryable<Booking>();
         }
 
         public List<Booking> GetByHotelId(int hotelId)

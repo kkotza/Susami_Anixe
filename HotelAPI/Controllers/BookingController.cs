@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Susami_Anixe.Core.Model.Dto;
 using Susami_Anixe.Core.Model.Entities;
+using Susami_Anixe.Core.Repositories.Interfaces;
 using Susami_Anixe.Core.Services.Interfaces;
 
 namespace Susami_Anixe.API.Controllers
@@ -11,12 +12,12 @@ namespace Susami_Anixe.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class BookingController : ControllerBase
-    {
+    {        
         private readonly IBookingService _bookingService;
         private readonly IMapper _mapper;
 
         public BookingController(IBookingService bookingService, IMapper mapper)
-        {
+        {            
             _bookingService = bookingService;
             _mapper = mapper;
         }
@@ -29,13 +30,28 @@ namespace Susami_Anixe.API.Controllers
 
         [HttpPut]       
         public IActionResult Update(BookingDto dto)
-        {                
-            var updateBooking = _mapper.Map<Booking>(dto);
-            var result = _bookingService.Update(updateBooking);
+        {                            
 
-            if (result != null) { return Ok(result); }
+            if (dto == null || dto.Id <= 0 )
+            {
+                return BadRequest("Booking Id expected to have a proper value");
+            }
 
-            return NotFound("Booking not found / error");
+            var updateBooking = _mapper.Map<Booking>(dto);            
+
+            var existingBooking = _bookingService.Get(dto.Id).FirstOrDefault();
+            if (existingBooking == null)
+            {
+                return NotFound();
+            }
+
+            existingBooking.CustomerName = updateBooking.CustomerName;
+            existingBooking.Pax = updateBooking.Pax;
+            existingBooking.HotelId = updateBooking.HotelId;
+
+            var result = _bookingService.Update(existingBooking);
+
+            return Ok(result);            
         }
     }
 }

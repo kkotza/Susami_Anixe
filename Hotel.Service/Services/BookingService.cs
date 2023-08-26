@@ -1,4 +1,5 @@
-﻿using Susami_Anixe.Core.Model.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Susami_Anixe.Core.Model.Entities;
 using Susami_Anixe.Core.Repositories.Interfaces;
 using Susami_Anixe.Core.Services.Interfaces;
 using System;
@@ -20,17 +21,15 @@ namespace Susami_Anixe.Core.Services
 
         public Booking? Update(Booking booking)
         {
-            try
-            {
-                _bookingRepo.Update(booking);
-                return booking;
-            }
-            catch
-            {
-               
-            }
             
-            return null;
+            _bookingRepo.Update(booking);
+            return booking;
+           
+        }
+
+        public IQueryable<Booking> Get(int id)
+        {
+            return _bookingRepo.Get(id);
         }
 
         public List<Booking> GetByHotelId(int hotelId)

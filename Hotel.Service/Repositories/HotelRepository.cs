@@ -17,16 +17,7 @@ namespace Susami_Anixe.Core.Repositories
             var result = _context.Add<Hotel>(hotel);
             _context.SaveChanges();
 
-            var h = _context.Hotels.Include(x=> x.Bookings).First(h => h.Id == result.Entity.Id);
-
-            return new Hotel
-            {
-                Id = h.Id,
-                Name = h.Name,
-                Address = h.Address,
-                Star = h.Star,
-                Bookings = h.Bookings
-            };
+            return  _context.Hotels.Include(x=> x.Bookings).First(h => h.Id == result.Entity.Id);          
         }
 
         public List<Hotel> GetByName(string term) 
