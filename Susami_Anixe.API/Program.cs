@@ -19,11 +19,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-//builder.Services.AddDbContext<AnixeDbContext>();
-
-var directoryName = System.IO.Directory.GetCurrentDirectory();
-var dataSource = $"Data Source={directoryName}//Anixe.sqlite";
+var dataSource = $"Data Source=../AnixeAPI.sqlite";
 
 builder.Services.AddDbContext<AnixeDbContext>(
                             options => { options.UseSqlite(dataSource); });

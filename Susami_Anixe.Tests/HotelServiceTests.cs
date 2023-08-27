@@ -1,9 +1,6 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
-using Susami_Anixe.Core.DataAccess;
-using Susami_Anixe.Core.Model.Dto;
 using Susami_Anixe.Core.Model.Entities;
 using Susami_Anixe.Core.Repositories;
 using Susami_Anixe.Core.Repositories.Interfaces;
@@ -11,53 +8,60 @@ using Susami_Anixe.Core.Services;
 using Susami_Anixe.Core.Services.Interfaces;
 using System.Reflection.Metadata;
 
+
 namespace Susami_Anixe.Tests
 {
-    public  class HotelServiceTests
+    public class HotelServiceTests : IClassFixture<TestDatabaseFixture>
     {
-        //private readonly Mock<Logger> _loggerMock;
-        private readonly Mock<IHotelRepository> _hotelRepositoryMock;
-        private readonly IHotelRepository _hotelRepository;
-        private readonly DbContextOptions<AnixeDbContext> _contextOptions;
-        //private readonly IMapper _mapper;
+        
+        private TestDatabaseFixture Fixture { get; }
+        private readonly Mock<IHotelRepository> repositoryMock = new Mock<IHotelRepository>();
+        private readonly IHotelService _hotelService;
 
-        public HotelServiceTests()
+        public HotelServiceTests(TestDatabaseFixture fixture)
         {
-            _hotelRepositoryMock = new Mock<IHotelRepository>();
+            Fixture = fixture;
+            _hotelService = new HotelService(repositoryMock.Object);
+        }
 
-            var directoryName = System.IO.Directory.GetCurrentDirectory();
-            var dataSource = $"Data Source={directoryName}//Anixe.sqlite";
 
-            _contextOptions = new DbContextOptionsBuilder<AnixeDbContext>()
-                .UseSqlite(dataSource)                
-                .Options;
+        [Fact]
+        public void Add_Hotel()
+        {
+            //test database
 
-            var context = new AnixeDbContext(_contextOptions);
+            var hotel = new Hotel("Test Hotel", "Test address", 1);
 
-            
-            context.AddRange(
-                new List<Hotel> { new Hotel("Test Hotel", "Test address", 1), new Hotel("Test2 Hotel", "Test address", 2) });
+            using var context = Fixture.CreateContext();
 
-            context.SaveChanges();
+            context.Database.BeginTransaction();
 
-            _hotelRepository = new HotelRepository(context);
+            var repo = new HotelRepository(context);
+            repo.Create(hotel);
+
+            context.ChangeTracker.Clear();
+
+            var foundHotel = context.Hotels.Single(b => b.Name == "Test Hotel");           
+
+            Assert.Equal("Test Hotel", foundHotel.Name);
         }
 
         [Fact]
-        public void Create_Should_Add_Hotel_To_Repository()
-        {
-            _hotelRepositoryMock.Setup(repo => repo.Create(It.IsAny<Hotel>())).Verifiable();
-            _hotelRepositoryMock.Setup(repo => repo.SaveChanges()).Verifiable();
-
-            // Arrange
-            var hotel = new Hotel("Test Hotel", "Test address", 1);                     
-            var _hotelService = new HotelService(_hotelRepository);
+        public void Get_By_Hotel_Name()
+        {            
+            var hotels = new List<Hotel>()
+            {
+                new Hotel("test", "", 1),
+                new Hotel("test2","", 2),
+            };
+            
+            repositoryMock.Setup(x => x.GetByName("test")).Returns(hotels);
 
             // Act
-            var result = _hotelService.Create(hotel);
-
-            // Assert            
-            Assert.NotNull(result);                        
+            IEnumerable<Hotel> result = _hotelService.GetByName("test");
+            // Assert
+            Assert.Equal(result, hotels);           
         }
+              
     }
 }

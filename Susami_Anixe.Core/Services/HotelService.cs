@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace Susami_Anixe.Core.Services
 {
@@ -23,7 +24,7 @@ namespace Susami_Anixe.Core.Services
             return _hotelRepo.Create(hotel);
         }
 
-        public List<Hotel> GetByName(string term)
+        public IEnumerable<Hotel> GetByName(string term)
         {
             return _hotelRepo.GetByName(term);
         }
