@@ -42,9 +42,9 @@ namespace Susami_Anixe.Tests
 
             context.ChangeTracker.Clear();
 
-            var result = context.Bookings.Single(b => b.HotelId == 1);          
+            var result = context.Bookings.Include(b=> b.Hotel).Single(b => b.HotelId == 1);          
 
-            Assert.Equal(result.CustomerName, booking.CustomerName);
+            Assert.Equal(result.Hotel.Name, booking.Hotel.Name);
         }
 
         [Fact]
