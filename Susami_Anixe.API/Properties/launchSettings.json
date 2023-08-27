@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "HotelAPI": {
+    "Susammi_Anixe.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
