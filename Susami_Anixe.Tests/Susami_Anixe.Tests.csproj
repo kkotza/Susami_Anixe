@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hotel.Service\Susami_Anixe.Core.csproj" />
+    <ProjectReference Include="..\Susami_Anixe.Core\Susami_Anixe.Core.csproj" />
   </ItemGroup>
 
 </Project>

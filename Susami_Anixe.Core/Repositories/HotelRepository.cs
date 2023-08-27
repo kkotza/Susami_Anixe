@@ -9,13 +9,12 @@ namespace Susami_Anixe.Core.Repositories
     {
         private readonly AnixeDbContext _context;
 
-        public HotelRepository(AnixeDbContext context)
-        => _context = context;
+        public HotelRepository(AnixeDbContext context) => _context = context;
 
         public Hotel Create(Hotel hotel) {            
 
             var result = _context.Add<Hotel>(hotel);
-            _context.SaveChanges();
+            SaveChanges();
 
             return  _context.Hotels.Include(x=> x.Bookings).First(h => h.Id == result.Entity.Id);          
         }
@@ -23,6 +22,11 @@ namespace Susami_Anixe.Core.Repositories
         public List<Hotel> GetByName(string term) 
         {
             return _context.Hotels.Where(x=> x.Name.Contains(term)).ToList();           
+        }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
         }
     }
 }

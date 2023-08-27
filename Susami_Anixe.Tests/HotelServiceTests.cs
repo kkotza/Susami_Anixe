@@ -1,14 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using Susami_Anixe.Core.DataAccess;
 using Susami_Anixe.Core.Model.Dto;
 using Susami_Anixe.Core.Model.Entities;
+using Susami_Anixe.Core.Repositories;
 using Susami_Anixe.Core.Repositories.Interfaces;
 using Susami_Anixe.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Susami_Anixe.Core.Services.Interfaces;
+using System.Reflection.Metadata;
 
 namespace Susami_Anixe.Tests
 {
@@ -16,37 +17,47 @@ namespace Susami_Anixe.Tests
     {
         //private readonly Mock<Logger> _loggerMock;
         private readonly Mock<IHotelRepository> _hotelRepositoryMock;
+        private readonly IHotelRepository _hotelRepository;
+        private readonly DbContextOptions<AnixeDbContext> _contextOptions;
+        //private readonly IMapper _mapper;
 
         public HotelServiceTests()
         {
-            //_loggerMock = new Mock<Logger>();
             _hotelRepositoryMock = new Mock<IHotelRepository>();
+
+            var directoryName = System.IO.Directory.GetCurrentDirectory();
+            var dataSource = $"Data Source={directoryName}//Anixe.sqlite";
+
+            _contextOptions = new DbContextOptionsBuilder<AnixeDbContext>()
+                .UseSqlite(dataSource)                
+                .Options;
+
+            var context = new AnixeDbContext(_contextOptions);
+
+            
+            context.AddRange(
+                new List<Hotel> { new Hotel("Test Hotel", "Test address", 1), new Hotel("Test2 Hotel", "Test address", 2) });
+
+            context.SaveChanges();
+
+            _hotelRepository = new HotelRepository(context);
         }
 
         [Fact]
-        public void AddMovie_Should_Add_Movie_To_Repository()
+        public void Create_Should_Add_Hotel_To_Repository()
         {
-            // Arrange
-            var hotelDto = new HotelDto
-            {
-                Name = "Test Hotel",
-                Address = "Test address",
-                Star = 1
-            };
-
             _hotelRepositoryMock.Setup(repo => repo.Create(It.IsAny<Hotel>())).Verifiable();
-            //_hotelRepositoryMock.Setup(repo => repo.SaveChanges()).Verifiable();
+            _hotelRepositoryMock.Setup(repo => repo.SaveChanges()).Verifiable();
 
-            var hotelService = new HotelService(_hotelRepositoryMock.Object);
+            // Arrange
+            var hotel = new Hotel("Test Hotel", "Test address", 1);                     
+            var _hotelService = new HotelService(_hotelRepository);
 
-            //// Act
-            //var result = hotelService.Create(movieDto);
+            // Act
+            var result = _hotelService.Create(hotel);
 
-            //// Assert
-            //_movieRepositoryMock.Verify(); // Verifies that Add and SaveChanges were called
-            //Assert.NotNull(result);
-            //Assert.NotEqual(Guid.Empty, result.Id);
-            //Assert.Equal(0, result.Rating); // Assuming the default rating is 0
+            // Assert            
+            Assert.NotNull(result);                        
         }
     }
 }

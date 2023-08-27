@@ -12,5 +12,6 @@ namespace Susami_Anixe.Core.Repositories.Interfaces
     {
         Hotel Create(Hotel hotel);
         List<Hotel> GetByName(string term);
+        void SaveChanges();
     }
 }
